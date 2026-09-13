@@ -16,15 +16,13 @@ jobs:
       - name: Set up Java JDK 17
         uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
+          distribution: 'temurin'
           java-version: '17'
-          cache: 'gradle'
 
       - name: Set up Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
@@ -32,7 +30,6 @@ jobs:
       - name: Prepare Web Directory
         run: |
           mkdir -p www
-          # Automatically map your uploaded html file to www/index.html
           HTML_FILE=$(ls *.html 2>/dev/null | head -n 1)
           if [ -n "$HTML_FILE" ]; then
             cp "$HTML_FILE" www/index.html
@@ -42,39 +39,29 @@ jobs:
             echo "Error: No HTML file found!" && exit 1
           fi
 
-      - name: Initialize Project & Install Capacitor Biometrics
+      - name: Install Dependencies and Initialize Capacitor
         run: |
           npm init -y
-          npm install @capacitor/core@latest @capacitor/cli@latest @capacitor/android@latest @capgo/capacitor-native-biometric@latest
+          npm install @capacitor/core@6.0.0 @capacitor/cli@6.0.0 @capacitor/android@6.0.0 @capgo/capacitor-native-biometric@6.0.0
           npx cap init "Private AI" "com.privateai.enterprise" --web-dir "www"
           npx cap add android
 
       - name: Inject Android Hardware Permissions & Cleartext Config
         run: |
           MANIFEST_PATH="android/app/src/main/AndroidManifest.xml"
-          
-          # Inject Biometric, Camera, Storage, and Network permissions before </manifest>
           PERMISSIONS='    <uses-permission android:name="android.permission.USE_BIOMETRIC" />\n    <uses-permission android:name="android.permission.USE_FINGERPRINT" />\n    <uses-permission android:name="android.permission.CAMERA" />\n    <uses-feature android:name="android.hardware.camera" android:required="false" />\n    <uses-feature android:name="android.hardware.fingerprint" android:required="false" />\n    <uses-permission android:name="android.permission.INTERNET" />\n    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />'
-          
           sed -i "/<\/manifest>/i $PERMISSIONS" $MANIFEST_PATH
-          
-          # Enable hardware acceleration and local cleartext traffic for webview media
           sed -i 's/<application /<application android:hardwareAccelerated="true" android:usesCleartextTraffic="true" /' $MANIFEST_PATH
 
-      - name: Sync Web Directory & Plugins to Android Native Code
+      - name: Sync Capacitor Project
         run: |
           npx cap sync android
 
-      - name: Configure Gradle Environment
+      - name: Build Android APK
         run: |
           cd android
-          echo "org.gradle.jvmargs=-Xmx2048m -XX:MaxMetaspaceSize=512m" >> gradle.properties
           chmod +x gradlew
-
-      - name: Compile Debug APK
-        run: |
-          cd android
-          ./gradlew assembleDebug --no-daemon --stacktrace
+          ./gradlew assembleDebug --no-daemon
 
       - name: Upload Installer APK Artifact
         uses: actions/upload-artifact@v4
