@@ -1,0 +1,1611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<title>Private AI Enterprise</title>
+
+<!-- Non-module builds for reliable offline APK WebView operation -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+<style>
+:root{
+    --bg-main:#0b0f19;
+    --card-bg:#111827;
+    --border-color:#1f2937;
+    --text-primary:#f9fafb;
+    --text-secondary:#9ca3af;
+    --accent:#3b82f6;
+    --accent-hover:#2563eb;
+    --danger:#ef4444;
+    --danger-bg:rgba(239,68,68,0.12);
+    --success:#10b981;
+    --success-bg:rgba(16,185,129,0.12);
+    --radius:14px;
+}
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+
+body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg-main);
+    color:var(--text-primary);
+    overflow-x:hidden;
+}
+
+button,input,textarea{
+    font:inherit;
+    color:inherit;
+}
+
+button{
+    cursor:pointer;
+    user-select:none;
+}
+
+.app{
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+}
+
+header{
+    background:#111827;
+    border-bottom:1px solid var(--border-color);
+    padding:14px 20px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    position:sticky;
+    top:0;
+    z-index:40;
+}
+
+.brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-size:18px;
+    font-weight:700;
+}
+
+.logo{
+    width:34px;
+    height:34px;
+    border-radius:10px;
+    background:linear-gradient(135deg,#3b82f6,#8b5cf6);
+    color:white;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:16px;
+    font-weight:900;
+}
+
+.header-right{
+    display:flex;
+    gap:10px;
+    align-items:center;
+}
+
+.badge{
+    background:#1f2937;
+    border:1px solid #374151;
+    color:#e5e7eb;
+    padding:5px 12px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:500;
+}
+
+main{
+    width:min(900px,94%);
+    margin:20px auto 40px;
+    flex:1;
+}
+
+.card{
+    background:var(--card-bg);
+    border:1px solid var(--border-color);
+    border-radius:var(--radius);
+    padding:20px;
+    margin-bottom:18px;
+    box-shadow:0 8px 24px rgba(0,0,0,0.25);
+}
+
+h2{font-size:20px;margin-top:0;margin-bottom:8px;font-weight:700}
+
+.subtitle{
+    color:var(--text-secondary);
+    font-size:13px;
+    line-height:1.5;
+    margin-bottom:16px;
+}
+
+.field{margin-bottom:14px}
+
+label{
+    display:block;
+    font-size:12px;
+    font-weight:600;
+    text-transform:uppercase;
+    color:var(--text-secondary);
+    margin-bottom:6px;
+}
+
+input{
+    width:100%;
+    border:1px solid var(--border-color);
+    border-radius:10px;
+    padding:12px;
+    background:#1a2234;
+    outline:none;
+}
+
+input:focus{
+    border-color:var(--accent);
+}
+
+.actions{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+}
+
+.primary{
+    background:var(--accent);
+    color:white;
+    border:0;
+    padding:11px 18px;
+    border-radius:10px;
+    font-weight:600;
+    font-size:14px;
+}
+
+.primary:hover{background:var(--accent-hover)}
+
+.secondary{
+    background:#1f2937;
+    color:#e5e7eb;
+    border:1px solid #374151;
+    padding:11px 16px;
+    border-radius:10px;
+    font-weight:600;
+    font-size:14px;
+}
+
+.danger{
+    background:var(--danger-bg);
+    color:var(--danger);
+    border:1px solid rgba(239,68,68,0.3);
+    padding:9px 15px;
+    border-radius:10px;
+    font-weight:600;
+    font-size:13px;
+}
+
+.upload-box{
+    border:2px dashed #2d3748;
+    border-radius:var(--radius);
+    padding:28px 16px;
+    text-align:center;
+    background:#0f172a;
+}
+
+.ask-box{
+    display:flex;
+    gap:10px;
+}
+
+.ask-box input{flex:1}
+
+.answer-card{
+    background:#0f172a;
+    border-left:4px solid var(--accent);
+    border-radius:8px;
+    padding:16px;
+    margin-top:16px;
+    line-height:1.6;
+    font-size:14px;
+    white-space:pre-wrap;
+}
+
+.source-tag{
+    margin-top:10px;
+    padding-top:10px;
+    border-top:1px solid var(--border-color);
+    color:var(--text-secondary);
+    font-size:12px;
+    display:flex;
+    justify-content:space-between;
+}
+
+.file-list{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.file-item{
+    border:1px solid var(--border-color);
+    background:#161f30;
+    border-radius:10px;
+    padding:12px 14px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+}
+
+.file-name{
+    font-weight:600;
+    font-size:14px;
+    word-break:break-all;
+}
+
+.file-meta{
+    color:var(--text-secondary);
+    font-size:12px;
+    margin-top:4px;
+}
+
+.status{
+    padding:10px 14px;
+    border-radius:8px;
+    font-size:13px;
+    margin-top:12px;
+}
+
+.success{background:var(--success-bg);color:var(--success);border:1px solid rgba(16,185,129,0.3)}
+.error{background:var(--danger-bg);color:var(--danger);border:1px solid rgba(239,68,68,0.3)}
+.warning{background:rgba(245,158,11,0.12);color:#f59e0b;border:1px solid rgba(245,158,11,0.3)}
+
+.table-wrap{
+    overflow-x:auto;
+    border:1px solid var(--border-color);
+    border-radius:10px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    min-width:550px;
+}
+
+th,td{
+    text-align:left;
+    padding:11px 14px;
+    border-bottom:1px solid var(--border-color);
+    font-size:13px;
+}
+
+th{background:#161f30;color:var(--text-secondary)}
+
+.modal{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.75);
+    backdrop-filter:blur(4px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:16px;
+    z-index:100;
+}
+
+.modal-box{
+    background:var(--card-bg);
+    border:1px solid var(--border-color);
+    width:min(440px,100%);
+    border-radius:var(--radius);
+    padding:22px;
+    max-height:92vh;
+    overflow-y:auto;
+}
+
+.photo-preview{
+    width:100%;
+    max-height:260px;
+    object-fit:cover;
+    border-radius:10px;
+    margin-top:12px;
+}
+
+.biometric-btn{
+    width:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    padding:14px;
+    font-size:15px;
+    margin-bottom:14px;
+    background:#1e293b;
+    border:1px solid var(--accent);
+    color:white;
+    border-radius:10px;
+}
+
+.biometric-btn:hover{
+    background:#273549;
+}
+
+.hidden{display:none!important}
+
+@media(max-width:650px){
+    .ask-box{flex-direction:column}
+    .file-item{flex-direction:column;align-items:flex-start}
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+<header>
+    <div class="brand">
+        <div class="logo">AI</div>
+        <span>Private AI</span>
+    </div>
+    <div class="header-right">
+        <span id="roleBadge" class="badge">Reader Mode</span>
+        <button class="secondary" id="ownerBtn">Owner</button>
+    </div>
+</header>
+
+<main>
+
+<!-- REGISTRATION CARD -->
+<section class="card" id="registrationCard">
+    <h2>Device Access Register</h2>
+    <p class="subtitle">Enter your name or use photo verification to register local device access.</p>
+
+    <div class="field">
+        <label>Your Name</label>
+        <input id="readerName" type="text" placeholder="e.g. Alex Morgan">
+    </div>
+
+    <div class="actions">
+        <button class="primary" id="registerBtn">Continue</button>
+        <button class="secondary" id="photoInsteadBtn">Use Photo Verification</button>
+    </div>
+    <div id="registrationStatus"></div>
+</section>
+
+<!-- READER VIEW -->
+<section id="readerArea" class="hidden">
+    <section class="card">
+        <h2>Ask On-Device Knowledge</h2>
+        <p class="subtitle">Ask questions or teach the system directly (e.g., <em>"Remember that..."</em> or <em>"Learn that..."</em>).</p>
+
+        <div class="ask-box">
+            <input id="question" type="text" placeholder="Ask questions or teach new facts...">
+            <button class="primary" id="askBtn">Search</button>
+        </div>
+        <div id="answerArea"></div>
+    </section>
+
+    <section class="card">
+        <h2>Submit Document</h2>
+        <p class="subtitle">The self-learning engine continuously parses entity graphs from uploaded documents.</p>
+
+        <div class="upload-box">
+            <div style="font-size:32px;margin-bottom:8px">📁</div>
+            <strong style="font-size:14px">Tap to upload files</strong>
+            <p class="subtitle" style="margin-bottom:12px">Supports PDF, TXT, CSV, JPG, PNG, WEBP</p>
+            <input id="readerFile" type="file" accept=".pdf,.txt,.csv,.jpg,.jpeg,.png,.webp" multiple class="hidden">
+            <button class="primary" onclick="document.getElementById('readerFile').click()">Choose Files</button>
+            <div id="readerUploadStatus"></div>
+        </div>
+    </section>
+
+    <section class="card">
+        <h2>Stored Knowledge Base</h2>
+        <div id="readerFileList" class="file-list"></div>
+    </section>
+
+    <section class="card">
+        <button class="danger" id="exitBtn">Lock & Exit Session</button>
+    </section>
+</section>
+
+<!-- OWNER VIEW -->
+<section id="ownerArea" class="hidden">
+    <section class="card">
+        <h2>Owner Administrative Console</h2>
+        <p class="subtitle">Full system controls, neural memory view, audit trail, and backups.</p>
+
+        <div class="actions" style="margin-bottom:14px">
+            <button class="primary" id="ownerUploadBtn">Import Knowledge</button>
+            <button class="secondary" id="enrollBiometricsBtn">Enroll Fingerprint / Biometrics</button>
+            <button class="secondary" id="changePinBtn">Change Owner PIN</button>
+            <button class="secondary" id="exportLogsBtn">Export Audit Log (CSV)</button>
+            <button class="secondary" id="backupDataBtn">Export Full Backup</button>
+        </div>
+
+        <div class="actions">
+            <button class="danger" id="clearLearnedMemoryBtn">Clear Learned Memory</button>
+            <button class="danger" id="deleteAllBtn">Purge Database</button>
+            <button class="danger" id="deleteLogsBtn">Clear Audit Logs</button>
+            <button class="secondary" id="ownerLogoutBtn">Relock Console</button>
+        </div>
+
+        <input id="ownerFile" type="file" accept=".pdf,.txt,.csv,.jpg,.jpeg,.png,.webp" multiple class="hidden">
+        <div id="ownerUploadStatus"></div>
+    </section>
+
+    <section class="card">
+        <h2>Self-Learned Associative Memory</h2>
+        <div id="learnedMemoryList" class="file-list"></div>
+    </section>
+
+    <section class="card">
+        <h2>Document Management</h2>
+        <div id="ownerFileList" class="file-list"></div>
+    </section>
+
+    <section class="card">
+        <h2>Access Audit Trail</h2>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Identity</th>
+                        <th>Registered</th>
+                        <th>Terminated</th>
+                        <th>Method</th>
+                    </tr>
+                </thead>
+                <tbody id="logsTable"></tbody>
+            </table>
+        </div>
+    </section>
+</section>
+
+</main>
+</div>
+
+<!-- OWNER LOGIN MODAL (FALLBACK PIN) -->
+<div class="modal hidden" id="ownerModal">
+    <div class="modal-box">
+        <h2>Owner Authentication</h2>
+        <p class="subtitle">Biometric verification unavailable or failed. Enter your Owner PIN to continue.</p>
+
+        <button class="biometric-btn" id="retryBiometricBtn">
+            <span>👆</span> Try Fingerprint Again
+        </button>
+
+        <div class="field">
+            <label>Owner Security PIN</label>
+            <input id="ownerPin" type="password" inputmode="numeric" placeholder="Enter PIN (Default: 2468)">
+        </div>
+
+        <div class="actions">
+            <button class="primary" id="ownerLoginBtn">Unlock with PIN</button>
+            <button class="secondary" id="closeOwnerModal">Cancel</button>
+        </div>
+        <div id="ownerLoginStatus"></div>
+    </div>
+</div>
+
+<!-- PHOTO REGISTRATION MODAL -->
+<div class="modal hidden" id="photoModal">
+    <div class="modal-box">
+        <h2>Photo Registration</h2>
+        <p class="subtitle">Capture your registration photo to proceed.</p>
+        <video id="camera" autoplay playsinline style="width:100%;border-radius:10px;background:#000"></video>
+        <canvas id="photoCanvas" class="hidden"></canvas>
+        <img id="photoPreview" class="photo-preview hidden">
+        <div class="actions" style="margin-top:14px">
+            <button class="primary" id="takePhotoBtn">Capture</button>
+            <button class="secondary" id="cancelPhotoBtn">Dismiss</button>
+        </div>
+        <div id="photoStatus"></div>
+    </div>
+</div>
+
+<script>
+/* =========================================================
+   DATABASE & INITIALIZATION
+   ========================================================= */
+const DB_NAME = "PrivateAI_Production_DB";
+const DB_VERSION = 3; // Upgraded to v3 to support persistent self-learning memory
+let db = null;
+let currentReader = null;
+let ownerMode = false;
+let cameraStream = null;
+
+if (window.pdfjsLib) {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+}
+
+function getStoredPin() {
+    return localStorage.getItem("privateAI_owner_pin") || "2468";
+}
+
+function openDatabase() {
+    return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, DB_VERSION);
+        req.onupgradeneeded = (e) => {
+            const d = e.target.result;
+            if (!d.objectStoreNames.contains("files")) d.createObjectStore("files", { keyPath: "id" });
+            if (!d.objectStoreNames.contains("logs")) d.createObjectStore("logs", { keyPath: "id" });
+            // Dedicated store for autonomous self-learning knowledge graph
+            if (!d.objectStoreNames.contains("learned_memory")) {
+                const memStore = d.createObjectStore("learned_memory", { keyPath: "key" });
+                memStore.createIndex("category", "category", { unique: false });
+            }
+        };
+        req.onsuccess = (e) => { db = e.target.result; resolve(db); };
+        req.onerror = () => reject(req.error);
+    });
+}
+
+function dbOp(storeName, mode, callback) {
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction(storeName, mode);
+        const store = tx.objectStore(storeName);
+        const req = callback(store);
+        tx.oncomplete = () => resolve(req ? req.result : true);
+        tx.onerror = () => reject(tx.error);
+    });
+}
+
+const addFile = (d) => dbOp("files", "readwrite", (s) => s.put(d));
+const getFiles = () => dbOp("files", "readonly", (s) => s.getAll());
+const deleteFile = (id) => dbOp("files", "readwrite", (s) => s.delete(id));
+const clearFiles = () => dbOp("files", "readwrite", (s) => s.clear());
+const addLog = (l) => dbOp("logs", "readwrite", (s) => s.put(l));
+const getLogs = () => dbOp("logs", "readonly", (s) => s.getAll());
+const clearLogs = () => dbOp("logs", "readwrite", (s) => s.clear());
+
+// Self-learning store operations
+const putMemory = (entry) => dbOp("learned_memory", "readwrite", (s) => s.put(entry));
+const getAllMemory = () => dbOp("learned_memory", "readonly", (s) => s.getAll());
+const clearMemory = () => dbOp("learned_memory", "readwrite", (s) => s.clear());
+
+const uid = () => Date.now().toString(36) + Math.random().toString(36).substring(2, 7);
+const getTimestamp = () => new Date().toLocaleString();
+
+function escapeHTML(str) {
+    return String(str || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+function showStatus(element, text, type = "") {
+    if (!element) return;
+    element.innerHTML = `<div class="status ${type}">${escapeHTML(text)}</div>`;
+}
+
+/* =========================================================
+   CONTINUOUS SELF-LEARNING & KNOWLEDGE GRAPH ENGINE
+   ========================================================= */
+
+// 1. Explicit teaching / interactive learning handler
+async function handleInteractiveLearning(query) {
+    const q = query.trim();
+    // Patterns matching explicit learning inputs
+    const teachRegex = /^(?:remember that|learn that|please note that|note that|store that)\s+(.+)/i;
+    const match = q.match(teachRegex);
+    if (!match) return null;
+
+    const statement = match[1].trim();
+    if (statement.length < 3) return null;
+
+    // Extract subject-predicate if possible
+    let key = statement.toLowerCase().slice(0, 40);
+    const splitMatch = statement.match(/^([^:=]+)\s+(?:is|are|means|equals|=|:)\s+(.+)/i);
+    if (splitMatch) {
+        key = splitMatch[1].trim().toLowerCase();
+    }
+
+    const memoryRecord = {
+        key: key,
+        rawFact: statement,
+        category: "Direct Instruction",
+        learnedAt: getTimestamp(),
+        reinforcements: 1
+    };
+
+    await putMemory(memoryRecord);
+    return `Learned: "${statement}". This has been permanently committed to internal memory.`;
+}
+
+// 2. Unsupervised entity and relation learning from documents
+async function runSelfLearningOnText(text, sourceName) {
+    const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 5);
+    let factsExtracted = 0;
+
+    for (const line of lines) {
+        // Pattern A: Tabular marks or scores (Name ... Number/Grade)
+        const markMatch = line.match(/^([a-zA-Z\s]{3,25})\s+[:\-]?\s*(\d{1,3}(?:\/\d{1,3})?|\b[A-F][+-]?\b)/);
+        if (markMatch) {
+            const nameKey = markMatch[1].trim().toLowerCase();
+            await putMemory({
+                key: `academic_${nameKey}`,
+                rawFact: line,
+                category: "Student Record",
+                source: sourceName,
+                learnedAt: getTimestamp(),
+                reinforcements: 1
+            });
+            factsExtracted++;
+            continue;
+        }
+
+        // Pattern B: Definitions or structured mappings ("Key: Value" or "Term means Definition")
+        const defMatch = line.match(/^([A-Za-z0-9\s]{3,30})\s*[:=-]\s*([A-Za-z0-9\s,.\-]{5,100})/);
+        if (defMatch) {
+            const termKey = defMatch[1].trim().toLowerCase();
+            await putMemory({
+                key: `def_${termKey}`,
+                rawFact: line,
+                category: "Concept Definition",
+                source: sourceName,
+                learnedAt: getTimestamp(),
+                reinforcements: 1
+            });
+            factsExtracted++;
+        }
+    }
+    return factsExtracted;
+}
+
+// 3. Search over learned memory
+async function queryLearnedMemory(query) {
+    const qTokens = tokenize(query);
+    if (!qTokens.length) return null;
+
+    const memories = await getAllMemory();
+    if (!memories.length) return null;
+
+    const scoredMemories = [];
+    for (const m of memories) {
+        let score = 0;
+        const target = (m.key + " " + m.rawFact).toLowerCase();
+        for (const t of qTokens) {
+            if (target.includes(t)) score += 2;
+        }
+        if (score > 0) {
+            scoredMemories.push({ ...m, score });
+        }
+    }
+
+    if (scoredMemories.length > 0) {
+        scoredMemories.sort((a, b) => b.score - a.score);
+        const top = scoredMemories[0];
+        // Reinforce the weight of the retrieved fact
+        top.reinforcements = (top.reinforcements || 1) + 1;
+        await putMemory(top);
+
+        return {
+            fact: top.rawFact,
+            category: top.category,
+            reinforcements: top.reinforcements
+        };
+    }
+    return null;
+}
+
+/* =========================================================
+   STUDENT, SCHOOL & TABLE RECORD EXTRACTOR
+   ========================================================= */
+function resolveStudentAndSchoolQueries(query, files) {
+    const q = query.trim().toLowerCase();
+    const cleanQ = q.replace(/[^\w\s]/g, " ");
+
+    const isStudentQuery = /\b(student|students|marks?|grade|grades|score|scores|rank|result|results|passed|failed|percentage)\b/i.test(q);
+    const isSchoolQuery = /\b(school|hss|high school|college|institution|academy|fatima|mata)\b/i.test(q);
+
+    if (!isStudentQuery && !isSchoolQuery) return null;
+
+    if (isSchoolQuery || q.includes("fatima") || q.includes("mata")) {
+        const schoolKeywords = [];
+        if (q.includes("fatima")) schoolKeywords.push("fatima");
+        if (q.includes("mata")) schoolKeywords.push("mata");
+        if (q.includes("hss")) schoolKeywords.push("hss");
+
+        const matchingLines = [];
+        for (const file of files) {
+            const lines = (file.text || "").split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 3);
+            let inSchoolSection = false;
+
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+                const lowerLine = line.toLowerCase();
+
+                if (schoolKeywords.every(kw => lowerLine.includes(kw))) {
+                    inSchoolSection = true;
+                    matchingLines.push({ text: `[School Header] ${line}`, source: file.name });
+                    continue;
+                }
+
+                if (inSchoolSection) {
+                    if (lowerLine.includes("school") || lowerLine.includes("college") || lowerLine.includes("institution")) {
+                        if (!schoolKeywords.every(kw => lowerLine.includes(kw))) {
+                            inSchoolSection = false;
+                            continue;
+                        }
+                    }
+                    if (line.length > 2) matchingLines.push({ text: line, source: file.name });
+                } else {
+                    if (schoolKeywords.some(kw => lowerLine.includes(kw))) {
+                        matchingLines.push({ text: line, source: file.name });
+                    }
+                }
+            }
+        }
+
+        if (matchingLines.length > 0) {
+            let resultText = `Found ${matchingLines.length} record(s) matching school query:\n\n`;
+            matchingLines.forEach((m, idx) => {
+                resultText += `${idx + 1}. ${m.text}  (${m.source})\n`;
+            });
+            return resultText;
+        }
+    }
+
+    const stopWords = new Set([
+        "what","is","are","the","marks","mark","of","person","student","for","his","her","tell","me",
+        "score","scores","grade","grades","give","show","percentage","in","exam","and","did","get"
+    ]);
+    const words = cleanQ.split(/\s+/).filter(w => w.length > 2 && !stopWords.has(w));
+
+    if (words.length > 0) {
+        const studentMatches = [];
+        for (const file of files) {
+            const lines = (file.text || "").split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 3);
+            for (const line of lines) {
+                const lowerLine = line.toLowerCase();
+                if (words.every(w => lowerLine.includes(w))) {
+                    studentMatches.push({ text: line, source: file.name });
+                }
+            }
+        }
+
+        if (studentMatches.length > 0) {
+            let resultText = `Found student marks/record:\n\n`;
+            studentMatches.forEach((m, idx) => {
+                resultText += `${idx + 1}. ${m.text}\n   Source: ${m.source}\n\n`;
+            });
+            return resultText;
+        }
+    }
+    return null;
+}
+
+/* =========================================================
+   PROGRAMS, SCHEDULES & TEMPORAL ENGINE
+   ========================================================= */
+const MONTH_NAMES = [
+    "january", "february", "march", "april", "may", "june",
+    "july", "august", "september", "october", "november", "december"
+];
+
+function extractDateFromText(text) {
+    const t = text.toLowerCase();
+    const now = new Date();
+
+    for (let i = 0; i < MONTH_NAMES.length; i++) {
+        const m = MONTH_NAMES[i];
+        if (new RegExp(`\\b${m}\\b`, "i").test(t)) {
+            const yrMatch = t.match(/\b(20\d\d)\b/);
+            const yr = yrMatch ? parseInt(yrMatch[1], 10) : now.getFullYear();
+            return { month: i, year: yr };
+        }
+    }
+
+    const numDateMatch = t.match(/\b(\d{1,4})[-/.](\d{1,2})[-/.](\d{1,4})\b/);
+    if (numDateMatch) {
+        let p1 = parseInt(numDateMatch[1], 10);
+        let p2 = parseInt(numDateMatch[2], 10);
+        let p3 = parseInt(numDateMatch[3], 10);
+
+        if (p1 > 1000) return { month: p2 - 1, year: p1 };
+        if (p3 > 1000) return { month: (p2 <= 12 ? p2 : p1) - 1, year: p3 };
+    }
+    return null;
+}
+
+function resolveScheduleAndProgramQueries(query, files) {
+    const q = query.trim().toLowerCase();
+    const now = new Date();
+    const currentMonthIndex = now.getMonth();
+    const currentYear = now.getFullYear();
+
+    const isProgramIntent = /\b(program|programs|schedule|schedules|event|events|agenda|routine|routines|class|classes)\b/i.test(q);
+    const isThisMonth = /\b(this month|current month)\b/i.test(q);
+    const isNextMonth = /\b(next month)\b/i.test(q);
+
+    let targetMonthIndex = -1;
+    let targetYear = currentYear;
+
+    for (let i = 0; i < MONTH_NAMES.length; i++) {
+        if (new RegExp(`\\b${MONTH_NAMES[i]}\\b`, "i").test(q)) {
+            targetMonthIndex = i;
+            break;
+        }
+    }
+
+    const yrMatch = q.match(/\b(20\d\d)\b/);
+    if (yrMatch) targetYear = parseInt(yrMatch[1], 10);
+
+    if (isThisMonth) {
+        targetMonthIndex = currentMonthIndex;
+        targetYear = currentYear;
+    } else if (isNextMonth) {
+        targetMonthIndex = (currentMonthIndex + 1) % 12;
+        targetYear = (currentMonthIndex === 11) ? currentYear + 1 : currentYear;
+    }
+
+    if (!isProgramIntent && targetMonthIndex === -1) return null;
+
+    const matchedEntries = [];
+    for (const file of files) {
+        const lines = (file.text || "").split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 5);
+        for (const line of lines) {
+            const dateInfo = extractDateFromText(line);
+            if (targetMonthIndex !== -1) {
+                if (dateInfo && dateInfo.month === targetMonthIndex && dateInfo.year === targetYear) {
+                    matchedEntries.push({ text: line, source: file.name });
+                }
+            } else if (isProgramIntent && !isThisMonth && !isNextMonth) {
+                matchedEntries.push({ text: line, source: file.name });
+            }
+        }
+    }
+
+    if (matchedEntries.length > 0) {
+        const monthLabel = (targetMonthIndex !== -1) ? `${MONTH_NAMES[targetMonthIndex].toUpperCase()} ${targetYear}` : "STORED RECORDS";
+        let formatted = `Found ${matchedEntries.length} program(s)/event(s) for ${monthLabel}:\n\n`;
+        matchedEntries.forEach((item, idx) => {
+            formatted += `${idx + 1}. ${item.text}  [${item.source}]\n`;
+        });
+        return formatted;
+    }
+
+    if (targetMonthIndex !== -1 && isProgramIntent) {
+        return `No scheduled programs found for ${MONTH_NAMES[targetMonthIndex]} ${targetYear}.`;
+    }
+    return null;
+}
+
+function getSystemTemporalKnowledge(query) {
+    const q = query.trim().toLowerCase();
+    const now = new Date();
+
+    const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+    const currentDay = days[now.getDay()];
+    const currentMonth = months[now.getMonth()];
+    const currentDateNum = now.getDate();
+    const currentYear = now.getFullYear();
+    const fullDateString = `${currentDay}, ${currentMonth} ${currentDateNum}, ${currentYear}`;
+    const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+    const isYearQuery = /\b(what('?s| is)? (the |current )?year|which year)\b/i.test(q);
+    const isTimeQuery = /\b(what('?s| is)? (the |current )?time|what time is it)\b/i.test(q);
+    const isDayQuery = /\b(what day is (it|today)|which day is (it|today)|day of (the )?week)\b/i.test(q);
+    const isMonthQuery = /\b(what('?s| is)? (the |current )?month|which month)\b/i.test(q);
+    const isDateQuery = /\b(what('?s| is)? (today('?s)? date|the date( today)?)|date today)\b/i.test(q);
+    const isGeneralTodayQuery = /\b(today|now)\b/i.test(q) && !q.includes("program") && !q.includes("student") && !q.includes("mark");
+
+    if (isYearQuery && !isDateQuery) return `The current year is ${currentYear}.`;
+    if (isTimeQuery) return `The current local time is ${timeString}.`;
+    if (isDayQuery) return `Today is ${currentDay}.`;
+    if (isMonthQuery && !isDateQuery) return `The current month is ${currentMonth} (${currentYear}).`;
+    if (isDateQuery || isGeneralTodayQuery) return `Today is ${fullDateString}. Current local time: ${timeString}.`;
+
+    return null;
+}
+
+function getDynamicSystemFile() {
+    const now = new Date();
+    const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+    const day = days[now.getDay()];
+    const month = months[now.getMonth()];
+    const dateNum = now.getDate();
+    const year = now.getFullYear();
+    const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    const content = `System Core Context: Today is ${day}, ${month} ${dateNum}, ${year}. Current month is ${month}. Current year is ${year}. Current local time is ${timeStr}.`;
+
+    return {
+        id: "sys_core_time",
+        name: "System Context",
+        size: content.length,
+        type: "SYSTEM",
+        text: content,
+        uploadedAt: "Always Active",
+        uploader: "System"
+    };
+}
+
+/* =========================================================
+   BIOMETRIC / FINGERPRINT INTEGRATION
+   ========================================================= */
+async function authenticateBiometrics() {
+    if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.NativeBiometric) {
+        try {
+            await window.Capacitor.Plugins.NativeBiometric.verifyIdentity({
+                reason: "Scan fingerprint to access Owner Console",
+                title: "Owner Authentication",
+                subtitle: "Confirm identity",
+                description: "Touch the fingerprint sensor"
+            });
+            return true;
+        } catch (err) {
+            console.warn("Capacitor biometric failure:", err);
+            return false;
+        }
+    }
+
+    if (window.PublicKeyCredential) {
+        try {
+            const rawId = localStorage.getItem("privateAI_bio_cred_id");
+            const challenge = new Uint8Array(32);
+            window.crypto.getRandomValues(challenge);
+
+            const options = {
+                publicKey: {
+                    challenge: challenge,
+                    timeout: 45000,
+                    userVerification: "required"
+                }
+            };
+
+            if (rawId) {
+                options.publicKey.allowCredentials = [{
+                    type: "public-key",
+                    id: Uint8Array.from(atob(rawId), c => c.charCodeAt(0))
+                }];
+            }
+
+            const assertion = await navigator.credentials.get(options);
+            return !!assertion;
+        } catch (err) {
+            console.warn("WebAuthn assertion failed:", err);
+            return false;
+        }
+    }
+    return false;
+}
+
+async function registerWebAuthnBiometrics() {
+    if (!window.PublicKeyCredential) {
+        alert("WebAuthn is not supported in this runtime environment.");
+        return;
+    }
+    try {
+        const challenge = new Uint8Array(32);
+        window.crypto.getRandomValues(challenge);
+        const userId = new Uint8Array(16);
+        window.crypto.getRandomValues(userId);
+
+        const credential = await navigator.credentials.create({
+            publicKey: {
+                challenge: challenge,
+                rp: { name: "Private AI System" },
+                user: {
+                    id: userId,
+                    name: "owner@privateai.local",
+                    displayName: "Private AI Owner"
+                },
+                pubKeyCredParams: [{ alg: -7, type: "public-key" }, { alg: -257, type: "public-key" }],
+                authenticatorSelection: {
+                    authenticatorAttachment: "platform",
+                    userVerification: "required"
+                },
+                timeout: 60000
+            }
+        });
+
+        if (credential) {
+            const credIdBase64 = btoa(String.fromCharCode(...new Uint8Array(credential.rawId)));
+            localStorage.setItem("privateAI_bio_cred_id", credIdBase64);
+            alert("Biometric fingerprint passkey registered successfully!");
+        }
+    } catch (e) {
+        alert("Failed to enroll biometrics: " + e.message);
+    }
+}
+
+/* =========================================================
+   BM25 SEARCH ENGINE
+   ========================================================= */
+const STOP_WORDS = new Set([
+    "what","what's","is","are","was","were","the","a","an","of","to","in","on",
+    "for","and","or","how","why","when","where","who","which","does","do","did",
+    "can","could","would","should","tell","me","about","please","explain","it","at","by"
+]);
+
+function tokenize(text) {
+    return (text || "")
+        .toLowerCase()
+        .replace(/[^\w\s]/g, " ")
+        .split(/\s+/)
+        .filter(w => w.length > 1 && !STOP_WORDS.has(w));
+}
+
+function segmentPassages(fullText, windowSize = 4) {
+    const rawSentences = fullText
+        .split(/(?<=[.?!])\s+|\n{2,}/)
+        .map(s => s.trim())
+        .filter(s => s.length > 15);
+    
+    if (rawSentences.length <= windowSize) {
+        return rawSentences.length ? [{ text: rawSentences.join(" ") }] : [];
+    }
+
+    const passages = [];
+    for (let i = 0; i < rawSentences.length; i += 2) {
+        const slice = rawSentences.slice(i, i + windowSize);
+        if (slice.length > 0) passages.push({ text: slice.join(" ") });
+    }
+    return passages;
+}
+
+function searchBM25(query, files) {
+    const qTokens = tokenize(query);
+    if (!qTokens.length) return [];
+
+    let corpus = [];
+    for (const f of files) {
+        const passages = segmentPassages(f.text);
+        passages.forEach(p => {
+            corpus.push({
+                fileName: f.name,
+                text: p.text,
+                tokens: tokenize(p.text)
+            });
+        });
+    }
+
+    const N = corpus.length;
+    if (N === 0) return [];
+    const avgdl = corpus.reduce((sum, doc) => sum + doc.tokens.length, 0) / N;
+    const k1 = 1.5;
+    const b = 0.75;
+
+    const idf = {};
+    qTokens.forEach(t => {
+        const docCount = corpus.filter(doc => doc.tokens.includes(t)).length;
+        idf[t] = Math.log((N - docCount + 0.5) / (docCount + 0.5) + 1);
+    });
+
+    const scored = corpus.map(doc => {
+        let score = 0;
+        const len = doc.tokens.length;
+        const termFreqs = {};
+        doc.tokens.forEach(t => termFreqs[t] = (termFreqs[t] || 0) + 1);
+
+        qTokens.forEach(t => {
+            if (termFreqs[t]) {
+                const tf = termFreqs[t];
+                const num = tf * (k1 + 1);
+                const den = tf + k1 * (1 - b + b * (len / avgdl));
+                score += idf[t] * (num / den);
+            }
+        });
+        return { ...doc, score };
+    });
+
+    return scored.filter(s => s.score > 0).sort((a, b) => b.score - a.score).slice(0, 3);
+}
+
+/* =========================================================
+   DOCUMENT EXTRACTION (PDF, OCR, TEXT)
+   ========================================================= */
+async function extractPDF(file) {
+    const buffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
+    let text = "";
+    for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const tc = await page.getTextContent();
+        text += `\n[Page ${i}] ` + tc.items.map(item => item.str).join(" ");
+    }
+    return text;
+}
+
+async function extractImage(file, statusEl) {
+    showStatus(statusEl, `Running OCR on ${file.name}...`);
+    const worker = await Tesseract.createWorker("eng");
+    const ret = await worker.recognize(file);
+    await worker.terminate();
+    return ret.data.text;
+}
+
+async function processFile(file, statusEl) {
+    const ext = file.name.split('.').pop().toLowerCase();
+    showStatus(statusEl, `Reading ${file.name}...`);
+    try {
+        let text = "";
+        if (["txt", "csv"].includes(ext)) {
+            text = await file.text();
+        } else if (ext === "pdf") {
+            text = await extractPDF(file);
+        } else if (["jpg", "jpeg", "png", "webp"].includes(ext)) {
+            text = await extractImage(file, statusEl);
+        } else {
+            throw new Error("Unsupported file format.");
+        }
+
+        if (!text.trim()) throw new Error("No readable text found.");
+
+        const record = {
+            id: uid(),
+            name: file.name,
+            size: file.size,
+            type: ext.toUpperCase(),
+            text: text,
+            uploadedAt: getTimestamp(),
+            uploader: ownerMode ? "Owner" : (currentReader?.name || "Reader")
+        };
+
+        await addFile(record);
+
+        // Run automated unsupervised self-learning on the new document
+        const factsLearned = await runSelfLearningOnText(text, file.name);
+        showStatus(statusEl, `Indexed: ${file.name} (Synthesized ${factsLearned} learned facts)`, "success");
+
+        await refreshFileLists();
+        if (ownerMode) await refreshLearnedMemoryUI();
+    } catch (err) {
+        showStatus(statusEl, `Error ${file.name}: ${err.message}`, "error");
+    }
+}
+
+/* =========================================================
+   UI CONTROLLERS & LOGIC
+   ========================================================= */
+async function refreshFileLists() {
+    const files = await getFiles();
+    const readerList = document.getElementById("readerFileList");
+    const ownerList = document.getElementById("ownerFileList");
+
+    const render = (container, canDelete) => {
+        if (!files.length) {
+            container.innerHTML = `<div style="text-align:center;padding:16px;color:var(--text-secondary)">No documents stored. Self-learning and temporal models active.</div>`;
+            return;
+        }
+        container.innerHTML = "";
+        files.forEach(f => {
+            const div = document.createElement("div");
+            div.className = "file-item";
+            div.innerHTML = `
+                <div>
+                    <div class="file-name">${escapeHTML(f.name)}</div>
+                    <div class="file-meta">${f.type} • ${(f.size / 1024).toFixed(1)} KB • Added ${escapeHTML(f.uploadedAt)} by ${escapeHTML(f.uploader)}</div>
+                </div>
+                ${canDelete ? `<button class="danger" onclick="deleteDocument('${f.id}')">Delete</button>` : ''}
+            `;
+            container.appendChild(div);
+        });
+    };
+
+    render(readerList, false);
+    render(ownerList, true);
+}
+
+async function refreshLearnedMemoryUI() {
+    const memContainer = document.getElementById("learnedMemoryList");
+    const memories = await getAllMemory();
+    if (!memories.length) {
+        memContainer.innerHTML = `<div style="text-align:center;padding:16px;color:var(--text-secondary)">No self-learned facts synthesized yet.</div>`;
+        return;
+    }
+    memContainer.innerHTML = "";
+    memories.forEach(m => {
+        const div = document.createElement("div");
+        div.className = "file-item";
+        div.innerHTML = `
+            <div>
+                <div class="file-name">${escapeHTML(m.rawFact)}</div>
+                <div class="file-meta">${escapeHTML(m.category)} • Reinforced ${m.reinforcements || 1}x • ${escapeHTML(m.learnedAt)}</div>
+            </div>
+        `;
+        memContainer.appendChild(div);
+    });
+}
+
+window.deleteDocument = async function(id) {
+    if (!ownerMode || !confirm("Delete this document?")) return;
+    await deleteFile(id);
+    await refreshFileLists();
+};
+
+async function askQuestion() {
+    const input = document.getElementById("question");
+    const output = document.getElementById("answerArea");
+    const q = input.value.trim();
+
+    if (!q) {
+        showStatus(output, "Please enter a question or fact.", "warning");
+        return;
+    }
+
+    // 1. Direct interactive teaching check
+    const learnedAck = await handleInteractiveLearning(q);
+    if (learnedAck) {
+        output.innerHTML = `
+            <div class="answer-card">
+                ${escapeHTML(learnedAck)}
+                <div class="source-tag">
+                    <span>Engine: <strong>Self-Learning Associative Memory</strong></span>
+                    <span>Status: Committed</span>
+                </div>
+            </div>`;
+        input.value = "";
+        return;
+    }
+
+    // 2. Query persistent self-learned memory
+    const memoryHit = await queryLearnedMemory(q);
+    if (memoryHit) {
+        output.innerHTML = `
+            <div class="answer-card">
+                ${escapeHTML(memoryHit.fact)}
+                <div class="source-tag">
+                    <span>Source: <strong>Self-Learned Associative Memory (${escapeHTML(memoryHit.category)})</strong></span>
+                    <span>Confidence: Reinforced ${memoryHit.reinforcements}x</span>
+                </div>
+            </div>`;
+        return;
+    }
+
+    const storedFiles = await getFiles();
+
+    // 3. Student & school records lookup
+    const studentAnswer = resolveStudentAndSchoolQueries(q, storedFiles);
+    if (studentAnswer) {
+        output.innerHTML = `
+            <div class="answer-card">
+                ${escapeHTML(studentAnswer)}
+                <div class="source-tag">
+                    <span>Engine: <strong>Student & School Record Resolver</strong></span>
+                    <span>Status: Matched</span>
+                </div>
+            </div>`;
+        return;
+    }
+
+    // 4. Program & schedule resolver
+    const scheduleAnswer = resolveScheduleAndProgramQueries(q, storedFiles);
+    if (scheduleAnswer) {
+        output.innerHTML = `
+            <div class="answer-card">
+                ${escapeHTML(scheduleAnswer)}
+                <div class="source-tag">
+                    <span>Engine: <strong>Schedule & Program Resolver</strong></span>
+                    <span>Status: Matched</span>
+                </div>
+            </div>`;
+        return;
+    }
+
+    // 5. Built-in temporal queries (date, day, year, time)
+    const basicSystemAnswer = getSystemTemporalKnowledge(q);
+    if (basicSystemAnswer) {
+        output.innerHTML = `
+            <div class="answer-card">
+                ${escapeHTML(basicSystemAnswer)}
+                <div class="source-tag">
+                    <span>Source: <strong>System Core Knowledge</strong></span>
+                    <span>Status: Verified</span>
+                </div>
+            </div>`;
+        return;
+    }
+
+    // 6. BM25 general search
+    const allSearchFiles = [getDynamicSystemFile(), ...storedFiles];
+    const matches = searchBM25(q, allSearchFiles);
+
+    if (!matches.length) {
+        output.innerHTML = `<div class="answer-card">No reliable match found. You can teach this to the system by typing: "Remember that [fact]".<div class="source-tag"><span>Relevance: 0</span></div></div>`;
+        return;
+    }
+
+    const top = matches[0];
+    output.innerHTML = `
+        <div class="answer-card">
+            ${escapeHTML(top.text)}
+            <div class="source-tag">
+                <span>Source: <strong>${escapeHTML(top.fileName)}</strong></span>
+                <span>Score: ${(top.score).toFixed(2)} pts</span>
+            </div>
+        </div>`;
+}
+
+function unlockOwnerView() {
+    ownerMode = true;
+    document.getElementById("ownerModal").classList.add("hidden");
+    document.getElementById("registrationCard").classList.add("hidden");
+    document.getElementById("readerArea").classList.add("hidden");
+    document.getElementById("ownerArea").classList.remove("hidden");
+    document.getElementById("roleBadge").textContent = "SUPER ADMIN";
+    document.getElementById("ownerPin").value = "";
+    refreshOwnerLogs();
+    refreshLearnedMemoryUI();
+}
+
+function promptPinFallback(errorMessage) {
+    document.getElementById("ownerModal").classList.remove("hidden");
+    showStatus(document.getElementById("ownerLoginStatus"), errorMessage, "error");
+    document.getElementById("ownerPin").focus();
+}
+
+async function handleOwnerButtonClick() {
+    try {
+        const verified = await authenticateBiometrics();
+        if (verified) {
+            unlockOwnerView();
+            return;
+        }
+    } catch (e) {
+        console.warn("Biometric verification error:", e);
+    }
+    promptPinFallback("Biometric verification failed or was canceled. Enter your Owner PIN.");
+}
+
+/* =========================================================
+   READER REGISTRATION & CAMERA
+   ========================================================= */
+async function registerReader() {
+    const name = document.getElementById("readerName").value.trim();
+    if (!name) {
+        showStatus(document.getElementById("registrationStatus"), "Please enter a name.", "warning");
+        return;
+    }
+    currentReader = {
+        id: uid(),
+        name: name,
+        method: "Manual Signature",
+        loginTime: getTimestamp(),
+        exitTime: null
+    };
+    await addLog(currentReader);
+    localStorage.setItem("privateAI_current_reader", JSON.stringify(currentReader));
+    setupActiveSession(currentReader.name);
+}
+
+function setupActiveSession(displayName) {
+    document.getElementById("registrationCard").classList.add("hidden");
+    document.getElementById("readerArea").classList.remove("hidden");
+    document.getElementById("roleBadge").textContent = `Reader: ${displayName}`;
+}
+
+async function openPhotoRegistration() {
+    const modal = document.getElementById("photoModal");
+    modal.classList.remove("hidden");
+    try {
+        cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+        document.getElementById("camera").srcObject = cameraStream;
+    } catch (e) {
+        showStatus(document.getElementById("photoStatus"), "Camera access denied.", "error");
+    }
+}
+
+function stopCamera() {
+    if (cameraStream) {
+        cameraStream.getTracks().forEach(t => t.stop());
+        cameraStream = null;
+    }
+}
+
+async function takePhoto() {
+    const video = document.getElementById("camera");
+    const canvas = document.getElementById("photoCanvas");
+    canvas.width = video.videoWidth || 320;
+    canvas.height = video.videoHeight || 240;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const dataURI = canvas.toDataURL("image/jpeg", 0.75);
+
+    stopCamera();
+
+    currentReader = {
+        id: uid(),
+        name: "Verified User",
+        method: "Photo Snapshot",
+        loginTime: getTimestamp(),
+        exitTime: null,
+        photo: dataURI
+    };
+    await addLog(currentReader);
+    localStorage.setItem("privateAI_current_reader", JSON.stringify(currentReader));
+    document.getElementById("photoModal").classList.add("hidden");
+    setupActiveSession("Photo Verified");
+}
+
+/* =========================================================
+   AUDIT LOGS
+   ========================================================= */
+async function refreshOwnerLogs() {
+    const logs = await getLogs();
+    const table = document.getElementById("logsTable");
+    if (!logs.length) {
+        table.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--text-secondary)">No logs recorded.</td></tr>`;
+        return;
+    }
+    table.innerHTML = "";
+    logs.reverse().forEach(l => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${escapeHTML(l.name)}</td>
+            <td>${escapeHTML(l.loginTime)}</td>
+            <td>${escapeHTML(l.exitTime || "Active")}</td>
+            <td>${escapeHTML(l.method)}</td>
+        `;
+        table.appendChild(row);
+    });
+}
+
+/* =========================================================
+   EVENT ATTACHMENTS
+   ========================================================= */
+document.getElementById("registerBtn").addEventListener("click", registerReader);
+document.getElementById("photoInsteadBtn").addEventListener("click", openPhotoRegistration);
+document.getElementById("takePhotoBtn").addEventListener("click", takePhoto);
+document.getElementById("cancelPhotoBtn").addEventListener("click", () => {
+    stopCamera();
+    document.getElementById("photoModal").classList.add("hidden");
+});
+
+document.getElementById("askBtn").addEventListener("click", askQuestion);
+document.getElementById("question").addEventListener("keydown", (e) => e.key === "Enter" && askQuestion());
+
+document.getElementById("readerFile").addEventListener("change", async (e) => {
+    for (const f of [...e.target.files]) await processFile(f, document.getElementById("readerUploadStatus"));
+    e.target.value = "";
+});
+
+document.getElementById("ownerFile").addEventListener("change", async (e) => {
+    for (const f of [...e.target.files]) await processFile(f, document.getElementById("ownerUploadStatus"));
+    e.target.value = "";
+});
+
+document.getElementById("ownerUploadBtn").addEventListener("click", () => document.getElementById("ownerFile").click());
+
+document.getElementById("exitBtn").addEventListener("click", async () => {
+    if (currentReader) {
+        const logs = await getLogs();
+        const r = logs.find(x => x.id === currentReader.id);
+        if (r) {
+            r.exitTime = getTimestamp();
+            await addLog(r);
+        }
+    }
+    localStorage.removeItem("privateAI_current_reader");
+    currentReader = null;
+    document.getElementById("readerArea").classList.add("hidden");
+    document.getElementById("registrationCard").classList.remove("hidden");
+    document.getElementById("readerName").value = "";
+    document.getElementById("roleBadge").textContent = "Reader Mode";
+    document.getElementById("answerArea").innerHTML = "";
+});
+
+document.getElementById("ownerBtn").addEventListener("click", handleOwnerButtonClick);
+
+document.getElementById("retryBiometricBtn").addEventListener("click", async () => {
+    const verified = await authenticateBiometrics();
+    if (verified) {
+        unlockOwnerView();
+    } else {
+        showStatus(document.getElementById("ownerLoginStatus"), "Biometric scan failed. Please use PIN.", "error");
+    }
+});
+
+document.getElementById("closeOwnerModal").addEventListener("click", () => {
+    document.getElementById("ownerModal").classList.add("hidden");
+});
+
+document.getElementById("ownerLoginBtn").addEventListener("click", () => {
+    const pin = document.getElementById("ownerPin").value;
+    if (pin !== getStoredPin()) {
+        showStatus(document.getElementById("ownerLoginStatus"), "Incorrect PIN.", "error");
+        return;
+    }
+    unlockOwnerView();
+});
+
+document.getElementById("ownerLogoutBtn").addEventListener("click", () => {
+    ownerMode = false;
+    document.getElementById("ownerArea").classList.add("hidden");
+    if (currentReader) {
+        document.getElementById("readerArea").classList.remove("hidden");
+        document.getElementById("roleBadge").textContent = `Reader: ${currentReader.name}`;
+    } else {
+        document.getElementById("registrationCard").classList.remove("hidden");
+        document.getElementById("roleBadge").textContent = "Reader Mode";
+    }
+});
+
+document.getElementById("enrollBiometricsBtn").addEventListener("click", registerWebAuthnBiometrics);
+
+document.getElementById("changePinBtn").addEventListener("click", () => {
+    const nextPin = prompt("Enter new minimum 4-digit PIN:");
+    if (nextPin && nextPin.length >= 4) {
+        localStorage.setItem("privateAI_owner_pin", nextPin);
+        alert("Owner PIN successfully updated.");
+    }
+});
+
+document.getElementById("clearLearnedMemoryBtn").addEventListener("click", async () => {
+    if (!confirm("Clear all self-learned memory facts?")) return;
+    await clearMemory();
+    await refreshLearnedMemoryUI();
+});
+
+document.getElementById("deleteAllBtn").addEventListener("click", async () => {
+    if (!confirm("Delete all knowledge documents?")) return;
+    await clearFiles();
+    await refreshFileLists();
+    showStatus(document.getElementById("ownerUploadStatus"), "Knowledge base wiped.", "success");
+});
+
+document.getElementById("deleteLogsBtn").addEventListener("click", async () => {
+    if (!confirm("Clear full audit trail?")) return;
+    await clearLogs();
+    await refreshOwnerLogs();
+});
+
+document.getElementById("exportLogsBtn").addEventListener("click", async () => {
+    const logs = await getLogs();
+    let csv = "ID,Name,Method,LoginTime,ExitTime\n";
+    logs.forEach(l => {
+        csv += `"${l.id}","${l.name.replace(/"/g, '""')}","${l.method}","${l.loginTime}","${l.exitTime || 'Active'}"\n`;
+    });
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `audit_logs_${Date.now()}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+});
+
+document.getElementById("backupDataBtn").addEventListener("click", async () => {
+    const files = await getFiles();
+    const logs = await getLogs();
+    const learned = await getAllMemory();
+    const backup = { files, logs, learned_memory: learned, exportDate: new Date().toISOString() };
+    const blob = new Blob([JSON.stringify(backup)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `system_backup_${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+});
+
+/* =========================================================
+   STARTUP
+   ========================================================= */
+(async function init() {
+    try {
+        await openDatabase();
+        await refreshFileLists();
+        const saved = localStorage.getItem("privateAI_current_reader");
+        if (saved) {
+            currentReader = JSON.parse(saved);
+            setupActiveSession(currentReader.name);
+        }
+    } catch (e) {
+        alert("Database initialization failed.");
+    }
+})();
+</script>
+</body>
+</html>
