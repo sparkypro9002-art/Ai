@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Birthday & Program Reminder</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f4f5f7;color:#17181b;font-family:Arial,sans-serif}
+.app{max-width:720px;margin:auto;padding:18px 14px 70px}.top{display:flex;justify-content:space-between;align-items:center}
+h1{font-size:24px;margin:4px 0}.sub{color:#6b6d72;font-size:13px;margin-bottom:18px}
+.tabs{display:flex;gap:8px}.tabs button,.secondary{border:0;border-radius:12px;padding:11px 14px;background:#e6e7ea;font-weight:700}
+.tabs .active{background:#191a1d;color:white}.card{background:white;border-radius:18px;padding:15px;margin:10px 0;box-shadow:0 2px 12px #0000000d}
+label{display:block;font-size:13px;font-weight:700;margin:10px 0 6px}
+input,textarea,select{width:100%;padding:12px;border:1px solid #ddd;border-radius:11px;font:inherit}textarea{min-height:72px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.primary{width:100%;border:0;border-radius:12px;padding:13px;background:#191a1d;color:#fff;font-weight:700;margin-top:12px}
+.danger{background:#fee!important;color:#a00!important}.hidden{display:none!important}.entry{display:flex;gap:12px;align-items:center}.entry img{width:62px;height:78px;border-radius:9px;object-fit:cover;background:#eee}
+.entry h3{margin:0 0 5px;font-size:17px}.muted{font-size:13px;color:#6b6d72}.count{font-weight:700;margin-top:5px}.empty{text-align:center;color:#777;padding:25px}
+.photo{width:74px;height:92px;object-fit:cover;border-radius:10px;margin-top:8px}.iconbtn{border:0;background:transparent;font-size:18px}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="top"><div><h1>🎂 Reminder</h1><div class="sub">Birthdays & programs</div></div><button id="notify" class="secondary">🔔</button></div>
+<div class="tabs">
+<button id="birthTab" class="active">Birthdays</button><button id="progTab">Programs</button><button id="addBtn">＋ Add</button>
+</div>
+<div id="list"></div>
+<div id="form" class="card hidden">
+<h2 id="title">Add Birthday</h2>
+<div id="bf">
+<label>Name</label><input id="name" placeholder="Person's name">
+<label>Date of birth</label><input id="dob" type="date">
+</div>
+<div id="pf" class="hidden">
+<label>Program name</label><input id="pname" placeholder="Program / function">
+<div class="row"><div><label>Date</label><input id="date" type="date"></div><div><label>Time</label><input id="time" type="time"></div></div>
+<label>Location</label><input id="loc" placeholder="Optional">
+<label>Notes</label><textarea id="notes" placeholder="Optional"></textarea>
+</div>
+<label>Passport-size photo (optional)</label><input id="photo" type="file" accept="image/*">
+<img id="preview" class="photo hidden">
+<label>Reminder</label>
+<select id="rem"><option value="0">On the day</option><option value="1">1 day before</option><option value="3">3 days before</option><option value="7">7 days before</option></select>
+<button id="save" class="primary">Save</button><button id="cancel" class="primary danger">Cancel</button>
+</div>
+</div>
+<script>
+const KEY="birthday_program_reminder_v2";let data=JSON.parse(localStorage.getItem(KEY)||"[]"),mode="birthday",editing=null,photoData="";
+const $=x=>document.getElementById(x),esc=s=>String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+function db(){localStorage.setItem(KEY,JSON.stringify(data))}
+function age(d){let b=new Date(d+"T00:00:00"),n=new Date(),a=n.getFullYear()-b.getFullYear();if(n.getMonth()<b.getMonth()||(n.getMonth()==b.getMonth()&&n.getDate()<b.getDate()))a--;return a}
+function next(d){let n=new Date(),b=new Date(d+"T00:00:00");b.setFullYear(n.getFullYear());if(b<new Date(n.getFullYear(),n.getMonth(),n.getDate()))b.setFullYear(n.getFullYear()+1);return b}
+function left(d){return Math.max(0,Math.ceil((d-new Date(new Date().setHours(0,0,0,0)))/86400000))}
+function fmt(d){return new Date(d+"T00:00:00").toLocaleDateString(undefined,{day:"numeric",month:"long",year:"numeric"})}
+function render(){
+$("form").classList.add("hidden");$("list").classList.remove("hidden");
+let a=data.filter(x=>x.type===mode).sort((x,y)=>{
+let dx=mode==="birthday"?left(next(x.dob)):left(new Date(x.date+"T"+(x.time||"00:00")));
+let dy=mode==="birthday"?left(next(y.dob)):left(new Date(y.date+"T"+(y.time||"00:00")));return dx-dy});
+$("list").innerHTML=a.length?a.map(e=>mode==="birthday"?`<div class="card entry">${e.photo?`<img src="${e.photo}">`:`<img>`}<div style="flex:1"><h3>${esc(e.name)}</h3><div class="muted">Born ${fmt(e.dob)} · Age ${age(e.dob)}</div><div class="count">🎉 ${left(next(e.dob))===0?"Today!":fmt(next(e.dob))+" · "+left(next(e.dob))+" days left"}</div></div><button class="iconbtn" onclick="edit('${e.id}')">✏️</button><button class="iconbtn" onclick="delE('${e.id}')">🗑️</button></div>`:`<div class="card entry">${e.photo?`<img src="${e.photo}">`:`<img>`}<div style="flex:1"><h3>${esc(e.name)}</h3><div class="muted">📅 ${fmt(e.date)}${e.time?" · "+e.time:""}</div>${e.loc?`<div class="muted">📍 ${esc(e.loc)}</div>`:""}<div class="count">${esc(e.notes)||"Program reminder"}</div></div><button class="iconbtn" onclick="edit('${e.id}')">✏️</button><button class="iconbtn" onclick="delE('${e.id}')">🗑️</button></div>`).join(""):`<div class="empty">No ${mode==="birthday"?"birthdays":"programs"} yet.</div>`
+}
+function openForm(t,e){
+mode=t;editing=e?.id||null;photoData=e?.photo||"";$("form").classList.remove("hidden");$("list").classList.add("hidden");
+$("bf").classList.toggle("hidden",t!=="birthday");$("pf").classList.toggle("hidden",t!=="program");$("title").textContent=e?(t==="birthday"?"Edit Birthday":"Edit Program"):(t==="birthday"?"Add Birthday":"Add Program");
+$("name").value=e?.name||"";$("dob").value=e?.dob||"";$("pname").value=e?.name||"";$("date").value=e?.date||"";$("time").value=e?.time||"";$("loc").value=e?.loc||"";$("notes").value=e?.notes||"";$("rem").value=e?.reminder??0;$("preview").src=photoData;$("preview").classList.toggle("hidden",!photoData)
+}
+function edit(id){let e=data.find(x=>x.id===id);openForm(e.type,e)}
+function delE(id){if(confirm("Delete this reminder?")){data=data.filter(x=>x.id!==id);db();render()}}
+$("birthTab").onclick=()=>{mode="birthday";$("birthTab").classList.add("active");$("progTab").classList.remove("active");render()}
+$("progTab").onclick=()=>{mode="program";$("progTab").classList.add("active");$("birthTab").classList.remove("active");render()}
+$("addBtn").onclick=()=>openForm(mode);
+$("cancel").onclick=render;
+$("photo").onchange=e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{photoData=r.result;$("preview").src=photoData;$("preview").classList.remove("hidden")};r.readAsDataURL(f)}
+$("save").onclick=()=>{let e=data.find(x=>x.id===editing)||{id:crypto.randomUUID(),type:mode};e.type=mode;e.name=mode==="birthday"?$("name").value.trim():$("pname").value.trim();if(!e.name)return alert("Enter a name.");if(mode==="birthday"){e.dob=$("dob").value;if(!e.dob)return alert("Select date of birth.")}else{e.date=$("date").value;e.time=$("time").value;if(!e.date)return alert("Select program date.");e.loc=$("loc").value.trim();e.notes=$("notes").value.trim()}e.photo=photoData;e.reminder=Number($("rem").value);if(!data.some(x=>x.id===e.id))data.push(e);db();render()}
+$("notify").onclick=async()=>{if(window.AndroidReminder?.requestNotifications){AndroidReminder.requestNotifications()}else if("Notification"in window){let p=await Notification.requestPermission();alert(p==="granted"?"Browser notifications enabled.":"Notification permission not granted.")}else alert("Install the Android APK for reliable notifications.")};
+render();
+</script>
+</body>
+</html>
